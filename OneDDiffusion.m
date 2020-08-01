@@ -4,25 +4,19 @@ clc
 
 
 % Dquail = 24mm, Rchicken = 54mm, Rostritch = 126mm
-Diameter = 24/1000;
+Diameter = 24;
 radius = Diameter/2;
 
-%Discretizing x to be 100 points between 0 and 1
-x=linspace(0,Diameter,10);
+%Each step in x will be one millimeter
+dx = 1;
 
-%For reference, if Quail dx = 0.0026. If Chicken dx = 0.0060
-%If Ostritch dx = 0.0139
-
-dx=x(2)-x(1);
-
-dt = 0.000001;
+dt = 0.1;
 %time steps will be handled in the while loop
 
 %: means all elements in that dimension
-
+x_slots = Diameter/dx;
 %initializing
-T = ones(10,10000);
-T_guess = ones(10,100000);
+T = ones(x_slots,1000);
 
 
 %Setting up initial conditions
@@ -34,7 +28,7 @@ T(:,1)= 10;
 %Setting boundary conditions
 %We put the egg in the water
 T(1,:) = 100;
-T(10,:)= 100;
+T(x_slots,:)= 100;
 
 
 
@@ -64,8 +58,7 @@ T(10,:)= 100;
 alpha = 1;
 
 k = 1;
-Middle = 0;
-time = 0;
+Middle = x_slots/2;
 endTime = 100000;
 checked = 0;
 
@@ -73,11 +66,12 @@ F = (alpha*dt)/(dx^2);
 
 check = 1-(2*F);
 
-if check > 0
-    %We let it cook
-    while k <= endTime
 
-        for i = 2:9
+if check > 0
+    %We let it cook until it reaches 80C
+    while T(Middle,k) < 80
+
+        for i = 2:(x_slots-1)
             %with each time step, the insides change somewhat
             T(i,k+1)=((1-(2*F))*T(i,k))+(F*T(i+1,k))+(F*T(i-1,k));
             
@@ -86,14 +80,6 @@ if check > 0
         %but I reset them here anyway just incase
         T(1,:) = 100;
         T(100,:)= 100;
-        
-        %checking the center
-        Middle = T(5,k);
-        if Middle >= 80 && checked == 0
-            time = k*dt;
-            checked = 1;%need to turn the center checker off
-            endTime = k + (10/dt);
-        end
             
         
         k = k+1;
@@ -103,12 +89,35 @@ else
     error = "Your time or x step is bad, fix it";
     disp(error)
 end
-disp(time)
 
+time = k*dt;
+total_time = time +10;
 
+plot(T)
 
+% Don't really need to, I mean the center isn't going to cool in the water
+% %We cook it for 10 more seconds
+%     while extra_time < 10
+% 
+%         for i = 2:9
+%             %with each time step, the insides change somewhat
+%             T(i,k+1)=((1-(2*F))*T(i,k))+(F*T(i+1,k))+(F*T(i-1,k));
+%             
+% 
+%         end
+%         %but I reset them here anyway just incase
+%         T(1,:) = 100;
+%         T(100,:)= 100;
+%         
+%         extra_time = w*dt;
+%         w = w+1;
+%         
+%         k = k+1;
+%              
+%     end
 
-
+    
+    
         
 
 
