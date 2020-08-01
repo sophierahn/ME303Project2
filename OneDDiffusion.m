@@ -10,13 +10,13 @@ radius = Diameter/2;
 %Each step in x will be one millimeter
 dx = 1;
 
-dt = 0.1;
+dt = 0.01;
 %time steps will be handled in the while loop
 
 %: means all elements in that dimension
 x_slots = Diameter/dx;
 %initializing
-T = ones(x_slots,1000);
+T = ones(x_slots,2500);
 
 
 %Setting up initial conditions
@@ -55,7 +55,7 @@ T(x_slots,:)= 100;
 % end
 
 
-alpha = 1;
+alpha = 40.7;
 
 k = 1;
 Middle = x_slots/2;
@@ -118,6 +118,15 @@ plot(T)
 
     
     
+
+
+
+
+
+
+
+
+
         
 
 
