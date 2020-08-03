@@ -1,35 +1,48 @@
-%Clears everything from before
-clc
-clear all
+%ME 303 Project 2 
+%Question 2 part 2
+%Cooling flatbread with DBCs and NBCs
+%Written by Sophia Rahn
 
-% Limits
+%Clear everything
+clc
+clear all;
+
+%Dimensional Limits
 y_limit = 1;
 x_limit = 1;
-t_limit = 0.1; % but also infinity
+t_limit = 0.1; % but also as long as we want
 
-dt = 0.001;
+%Time step
+dt = 0.00001;
 
-y_slots = 10;
-x_slots = 10;
+%Number of discrete samples
+y_slots = 100;
+x_slots = 100;
 t_slots = round(t_limit/dt,0);
 
+%Creating linearly spaced dimensional vectors
 x = linspace(0,x_limit, x_slots);
 y = linspace(0,y_limit,y_slots);
+
+%Done to improve readibility of the final array print
 y = transpose(y);
 
+
+%Dimensional steps
 dx = x(2)-x(1);
 dy = y(2)-y(1);
 
-%T(x,y,t)
+%Initializing T(x,y,t) for the number of samples
 T = ones(x_slots,y_slots,t_slots);
 
-%doing some math ahead of time
-X = pi.*x;
+%Doing some math ahead of time
+X = (4*pi).*x;
 Y = (4*pi).*y;
 
 %ICs
 T(:,:,1) = T(:,:,1).*sin(X).*sin(Y);
 
+%Transposing dimensional vectors for proper array multiplication
 X = transpose(X);
 X2 = (2*pi).*x;
 X2 = transpose(X2);
@@ -38,7 +51,7 @@ X2 = transpose(X2);
 T(:,1,:) = 1;
 T(:,end,:) = -1;
     
-%constants
+%Constants
 F = dt/(dx^2);
 G = dt/(dy^2);
 N1 = 0;
@@ -46,15 +59,17 @@ N2 = 2;
 
 
 
-%Iterative calculation of T(i,j)
-for k=1:t_slots
-    for i = 1:(x_slots)
-        for j = 2:(y_slots-1)
+%Iterative calculation of T(i,j,k)
+for k=1:t_slots %Iterating through time
+    for i = 1:(x_slots) %Iterating through x
+        for j = 2:(y_slots-1)%Iterating through y
+            
+            %Determing if ghost nodes need to be used
             if i == x_slots
                 T(i,j,k+1) = (F*(((2*N2*dx)+T(i-1,j,k))-(2*T(i,j,k))+T(i-1,j,k)))+(G*(T(i,j+1,k)-(2*T(i,j,k))+T(i,j-1,k)))+T(i,j,k);
             
             elseif i == 1
-                    T(i,j,k+1) = (F*(((2*N1*dx)+T(i+1,j,k))-(2*T(i,j,k))+T(i+1,j,k)))+(G*(T(i,j+1,k)-(2*T(i,j,k))+T(i,j-1,k)))+T(i,j,k);
+                T(i,j,k+1) = (F*(((2*N1*dx)+T(i+1,j,k))-(2*T(i,j,k))+T(i+1,j,k)))+(G*(T(i,j+1,k)-(2*T(i,j,k))+T(i,j-1,k)))+T(i,j,k);
           
                 
             else
@@ -64,16 +79,16 @@ for k=1:t_slots
        end
     end
     
-%BCs
+%BCs to ensure they were not overwritten
     T(:,1,k+1) =1;
     T(:,end,k+1) = -1;
 
+%Plotting the temperature array
 surf(T(:,:,k+1));
+title('Temperature vs Space iterating through Time');
+xlabel('X');
+ylabel('Y');
+zlabel('Temperature');
 pause(0.1);
 
 end
-% j= ones(x_slots,y_slots);
-% j(:,:) = T(:,:,1);
-% heatmap(j,'colormap', hot)
-
-% surf(T(:,:,end));
